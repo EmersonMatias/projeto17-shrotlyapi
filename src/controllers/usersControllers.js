@@ -21,3 +21,19 @@ export async function signinUser(req,res){
     
     res.status(200).send(acessToken)
 } 
+
+export async function getUrlsUser(req,res){
+    const {id, name, totalVisitCount} = req.user
+
+  try{
+    const userData =  (await connection.query('SELECT id,"shortUrl", url, "visitCount" FROM urls WHERE "userId"=$1',[1])).rows
+    
+    const newUserData = {id, name, totalVisitCount, shortenedUrls: userData}
+
+    res.status(200).send(newUserData)
+
+  } catch(error){
+    console.log(error)
+  }
+
+}

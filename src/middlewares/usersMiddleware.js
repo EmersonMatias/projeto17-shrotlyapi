@@ -1,5 +1,6 @@
 
 import { compareSync, hashSync } from "bcrypt"
+import jwt from "jsonwebtoken"
 import { connection } from "../database/db.js"
 import { signinSchema, signupSchema } from "../models/usersSchema.js"
 
@@ -70,4 +71,41 @@ export async function validateSignIn(req,res,next){
 
     req.user = {id: user?.id, name: user?.name, email: user?.email}
     next()
+}
+
+
+export async function validateUser(req,res, next){
+    const token = req.headers.authorization?.split(" ")[1]
+    let user;
+    let userExist;
+    let error;
+
+    if(!token){
+        return res.sendStatus(401)
+    }
+
+    jwt.verify(token, process.env.ACESS_TOKEN_SECRET, (errorToken, userData) => {
+        error = errorToken
+        user = userData
+    })
+
+    if(error){
+        return res.sendStatus(401)
+    }
+
+    try{
+        userExist = (await connection.query('SELECT users.id, users.name, SUM("visitCount") as "totalVisitCount" FROM users JOIN urls ON users.id=urls."userId" WHERE users.id=$1 GROUP BY users.id',[user.id])).rows[0]
+        console.log(`${userExist} asasasas`)
+
+        if(!userExist){
+            return res.sendStatus(404)
+        }
+    } catch(error){
+        console.log(error)
+    }
+
+    req.user = userExist
+    next()
+   
+
 }
