@@ -39,3 +39,20 @@ export async function openShortUrl(req,res){
 
     res.redirect(url)
 } 
+
+
+export async function getRankingList(req,res){
+    try{
+        const rankingList =  await connection.query(`
+        SELECT users.id, users.name, COUNT(urls."userId") as "linksCount", COALESCE(SUM(urls."visitCount"),0) as "visitCount"
+        FROM users  
+        LEFT JOIN urls ON users.id=urls."userId" 
+        GROUP BY users.id
+        ORDER BY  SUM(urls."visitCount") desc NULLS LAST
+        LIMIT 10
+        `)
+        res.send(rankingList.rows)
+    }catch(error){
+        console.log(error)
+    }
+}
