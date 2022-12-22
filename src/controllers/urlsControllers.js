@@ -40,7 +40,6 @@ export async function openShortUrl(req,res){
     res.redirect(url)
 } 
 
-
 export async function getRankingList(req,res){
     try{
         const rankingList =  await connection.query(`
@@ -51,8 +50,19 @@ export async function getRankingList(req,res){
         ORDER BY  SUM(urls."visitCount") desc NULLS LAST
         LIMIT 10
         `)
-        res.send(rankingList.rows)
+        res.status(200).send(rankingList.rows)
     }catch(error){
+        console.log(error)
+    }
+}
+
+export async function deleteUrlUser(req,res){
+    const urlId = req.params.id
+
+    try{
+        connection.query("DELETE FROM urls WHERE id=$1",[1])
+        res.sendStatus(200)
+    } catch(error){
         console.log(error)
     }
 }

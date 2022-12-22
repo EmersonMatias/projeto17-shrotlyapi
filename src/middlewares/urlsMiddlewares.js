@@ -67,3 +67,41 @@ export async function validateShortUrl(req,res,next){
     req.url = shortUrlExist
     next()
 }
+
+export async function validateDelete(req,res,next){
+    const urlId = req.params.id
+    const token = req.headers.authorization?.split(" ")[1]
+    let error;
+    let user;
+
+    if(!token){
+        return res.sendStatus(401)
+    }
+
+    jwt.verify(token, process.env.ACESS_TOKEN_SECRET, (errorToken, userData) => {
+        error = errorToken
+        user=userData
+        console.log(user)
+    })
+
+    if(error){
+        return res.sendStatus(401)
+    }
+    
+    try{
+        const userUrls = (await connection.query('SELECT * FROM urls WHERE id=$1',[urlId])).rows[0]
+
+        if(!userUrls){
+            return res.sendStatus(404)
+        }
+
+        if(userUrls.userId !== user.id){
+            return res.sendStatus(401)
+        }
+
+    }catch(error){
+        console.log(error)
+    }
+
+    next()
+} 

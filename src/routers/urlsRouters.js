@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { getEspecificUrl, getRankingList, openShortUrl, shortenUrl } from "../controllers/urlsControllers.js";
-import { connection } from "../database/db.js";
-import { validateShortUrl, validateUrlId, validateUserToken } from "../middlewares/urlsMiddlewares.js";
+import { deleteUrlUser, getEspecificUrl, getRankingList, openShortUrl, shortenUrl } from "../controllers/urlsControllers.js";
+import { validateDelete, validateShortUrl, validateUrlId, validateUserToken } from "../middlewares/urlsMiddlewares.js";
 
 const router = Router()
 
@@ -14,9 +13,6 @@ router.get("/urls/open/:shortUrl", validateShortUrl, openShortUrl)
 
 router.get("/ranking", getRankingList)
 
-router.get("/",  async(req,res) => {
-    const a = await connection.query("SELECT * FROM urls")
-    res.send(a.rows)
-})
+router.delete("/urls/:id", validateDelete, deleteUrlUser)
 
 export default router
