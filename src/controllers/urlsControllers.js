@@ -17,9 +17,9 @@ export async function shortenUrl(req,res){
 } 
 
 export async function getEspecificUrl(req,res){
-    const {id, shortUrl, url, visitCount} = req.especificUrl
+    const {id, shortUrl, url} = req.especificUrl
 
-    const especificUrl = {id, shortUrl, url, visitCount}
+    const especificUrl = {id, shortUrl, url}
 
 
     res.send(especificUrl)
@@ -60,8 +60,8 @@ export async function deleteUrlUser(req,res){
     const urlId = req.params.id
 
     try{
-        connection.query("DELETE FROM urls WHERE id=$1",[1])
-        res.sendStatus(200)
+        await connection.query("DELETE FROM urls WHERE id=$1",[urlId])
+        res.sendStatus(204)
     } catch(error){
         console.log(error)
     }

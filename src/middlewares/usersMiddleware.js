@@ -9,13 +9,13 @@ export async function validateSignUp(req, res, next){
     const{name, email, password, confirmPassword} = req.body
 
     if(!name || !email || !password || !confirmPassword ){
-        return res.sendStatus(422)
+        return res.status(422).send({message: "Campos vazios."})
     }
 
     const{error} = signupSchema.validate(req.body, {abortEarly: false})
 
     if(error){
-        return res.send(error.message)
+        return res.status(422).send(error.message)
     }
 
     try{
@@ -39,18 +39,18 @@ export async function validateSignIn(req,res,next){
     let user;
 
     if(!email || !password){
-        return res.sendStatus(422)
+        return res.status(422).send({message: "Campos vazios"})
     }
 
     const {error} = signinSchema.validate(req.body)
 
     if(error){
-        return res.sendStatus(422)
+        return res.status(422).send(error.message)
     }
 
     try{
         const userExist = await (await connection.query("SELECT * FROM users WHERE email=$1", [email.toLowerCase()])).rows[0]
-        console.log(userExist)
+        
         if(!userExist){
             return res.sendStatus(401)
         }
@@ -66,8 +66,6 @@ export async function validateSignIn(req,res,next){
     } catch(error){
         console.log(error)
     }
-
-
 
     req.user = {id: user?.id, name: user?.name, email: user?.email}
     next()
@@ -95,7 +93,6 @@ export async function validateUser(req,res, next){
 
     try{
         userExist = (await connection.query('SELECT users.id, users.name, SUM("visitCount") as "totalVisitCount" FROM users JOIN urls ON users.id=urls."userId" WHERE users.id=$1 GROUP BY users.id',[user.id])).rows[0]
-        console.log(`${userExist} asasasas`)
 
         if(!userExist){
             return res.sendStatus(404)

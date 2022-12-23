@@ -22,7 +22,7 @@ export async function validateUserToken(req,res, next){
 
     jwt.verify(token, process.env.ACESS_TOKEN_SECRET, (error, user) => {
         if(error){
-            return res.send(401)
+            return res.sendStatus(401)
         }
 
         req.user = user
@@ -81,7 +81,6 @@ export async function validateDelete(req,res,next){
     jwt.verify(token, process.env.ACESS_TOKEN_SECRET, (errorToken, userData) => {
         error = errorToken
         user=userData
-        console.log(user)
     })
 
     if(error){

@@ -3,21 +3,19 @@ import jwt from "jsonwebtoken"
 
 export async function singUpUser(req,res){
     const {name, email, password} = req.user
-    console.log(name, email, password)
 
     try{
         connection.query("INSERT INTO users (name, email, password) VALUES ($1,$2,$3)",[name, email, password])
    
-        res.sendStatus(200)
+        res.sendStatus(201)
     } catch(error){
         console.log(error)
     }
 }
 
-
 export async function signinUser(req,res){
     const user = req.user
-    const acessToken = jwt.sign(user, process.env.ACESS_TOKEN_SECRET)
+    const acessToken = jwt.sign(user, process.env.ACESS_TOKEN_SECRET, {expiresIn: '24h'})
     
     res.status(200).send(acessToken)
 } 
